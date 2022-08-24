@@ -1,0 +1,31 @@
+﻿
+/*
+ * Stars Rating.
+ *
+ */
+
+.ratingContainer {
+    display:block;
+    width:auto;
+    min-height:100px;
+    max-width:400px;
+    border:1px solid lightgrey;
+    color:white;
+}
+
+.star {    
+    display: block;
+    position: relative;
+    float: left;    
+    cursor:default;
+    z-index:-10;
+    margin-top:20px;
+}
+
+.star:hover{
+    cursor:pointer;
+}
+
+.spanPosition {
+    color:white;
+}

@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[ImageFile]
+(	
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[Image] IMAGE NULL
+)

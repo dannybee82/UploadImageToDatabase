@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@using BlazorFormDemo_002.ImageMethods
+@using DataAccess.Models
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<div class="imageGalleryContainer">
+	@if(imageData == null) {
+		<span>Loading Data ...</span>	
+	} else {
+		if(imageData.Any()) {
+			foreach (var item in imageData)
+			{
+				<ShowImage Image=item.Image ImageTitle=item.Title ImageDescription=@item.Description TargetId=item.Id Rating=item.Rating
+			    EditMethod=@EditImage DeleteMethod=@DeleteImage />
+			}
+		}
+	}
+</div>
+
+@code {
+	//	private ImagesData imagesData;
+
+	private List<ImageData>? imageData = null;	
+
+	protected override async Task OnInitializedAsync() {
+		imageData = await HttpClient.GetFromJsonAsync<List<ImageData>>(NavigationManager.BaseUri + "Images");
+	}
+		
+	private void EditImage(int id) {
+		NavigationManager.NavigateTo(NavigationManager.BaseUri + "edit-images/" + id + "");
+	}
+
+	private async void DeleteImage(int id) {
+		//debug = NavigationManager.BaseUri + "Delete-image" + id;
+
+		await HttpClient.DeleteAsync(NavigationManager.BaseUri + "Delete-image" + id);
+
+		imageData = await HttpClient.GetFromJsonAsync<List<ImageData>>(NavigationManager.BaseUri + "Images");
+
+		StateHasChanged();
+	}
+
+	private string ConvertByteArrayToString(byte[] arr) 
+	{
+		ResizeImage resizeImage = new();
+		arr = resizeImage.Resize(arr, 375, 375);
+		return $"data:{"image/jpg"};base64,{Convert.ToBase64String(arr)}";
+	}
+
+}

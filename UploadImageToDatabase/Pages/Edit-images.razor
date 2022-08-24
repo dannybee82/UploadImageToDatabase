@@ -1,0 +1,301 @@
+﻿@page "/edit-images"
+@page "/edit-images/{IdToModify:int?}"
+@using DataAccess.Models
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+@using BlazorFormDemo_002.ImageMethods
+@using UploadImageToDatabase.Model
+
+<PageTitle>Upload Images to Database</PageTitle>
+
+<h3>@newImageOrEditImage</h3>
+
+<div class="UploadImagesForm">
+	<EditForm Model="@imageDataValidation" OnValidSubmit="HandleSubmit">
+		<DataAnnotationsValidator />
+		<div class="inputText">
+			<label>Title:</label>
+			<InputText id="title" @bind-Value="imageDataValidation.Title" class="form-control" />
+		</div>
+
+		<div class="inputText">
+			<label>Description:</label>
+			<InputTextArea @bind-Value="@imageDataValidation.Description" class="form-control" />
+		</div>
+		
+		<div class="inputText">
+			<div class="uploadFile">
+				<label>Max File Size: 10MB - .JPG Only</label>
+				<InputFile OnChange="@LoadImageFile" accept=".jpg,.jpeg" class="form-control" />
+			</div>
+			<div class="imagePreview">
+				@if (isImageLoading)
+				{
+					<span>Loading ...</span>
+				}
+				else
+				{
+					if (!string.IsNullOrEmpty(imageThumbnail))
+					{
+						<button type="button" @onclick="ShowImageFullSize" @onclick:stopPropagation="true">
+							<img src="@imageThumbnail" id="imageThumbnail" image="Thumbnail" />
+						</button>
+
+						@if (!string.IsNullOrEmpty(imageFullSize))
+						{
+							<div class="largerImagePopUp" style="@cssStyleLargerImagePopUp">
+								<div class="imageCloseButton">
+									<div @onclick="ShowImageFullSize" @onclick:stopPropagation="true">
+											<img src="images/close.png" alt="Close" title="Close" />Close
+									</div>
+								</div>
+								<div class="imageContainer">
+									<img src="@imageFullSize" id="largerImageAtPopup" alt="Full Size Image" />
+								</div>								
+							</div>
+						}
+						else
+						{
+							<span>No Full Size Image available ...</span>
+						}
+					}
+					else
+					{
+						<div class="imageGalleryNoPreview">No Thumbnail available ...</div>
+					}
+				}
+			</div>
+		</div>
+
+		
+		<div class="inputText">
+				<label>Rating:</label>
+			<StarsRating AllowChanges=true CurrentRatingInStars=@imageDataValidation.Rating MarginLeft=15 MarginRight=15 StarSize=45 UseFilledStars=false CallBackMethod=@ChangeRating />
+		</div>
+
+		<div class="inputText">
+			<ValidationSummary />
+		</div>
+
+		<div class="submitButton">
+			<button type="submit">Submit</button>
+			<div>@imageErrorText</div>
+		</div>
+
+		<div class="whiteSpaceUnderForm" />
+
+	</EditForm>
+</div>
+
+@code {
+	[Parameter]
+	public int IdToModify { get; set; } = -1;
+
+	private bool allowChanges = true;
+
+	private GetMaxId maxId;
+
+	private ImageData? imageData = null;
+
+	private ImageDataValidation imageDataValidation = new();
+	private ResizeImage resizeImage = new();
+
+	private string newImageOrEditImage = "New Image";
+
+	//private string[] availableRatings = new string[] { "0", "0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5" };
+	private string[] availableRatings = new string[] { "0", "1", "2", "3", "4", "5" };
+
+	private string imageErrorText = string.Empty;
+
+	private string cssStyleLargerImagePopUp = "visibility:hidden";
+
+	private bool showImageFullSize = false;
+
+	private bool isImageLoading = false;
+
+	private string imageThumbnail = string.Empty;
+	private string imageFullSize = string.Empty;
+
+	//private byte[]? thumbnailImage = null;
+	private byte[]? fullsizeImage = null;
+
+	private long maxFileSize = 10000000;
+	private int maxAllowedFiles = 1;
+
+	private async void HandleSubmit()
+	{
+		ImageData imageData = new();
+		imageData.Title = imageDataValidation.Title;
+		imageData.Description = imageDataValidation.Description;
+		imageData.Rating = imageDataValidation.Rating;
+		imageData.Image = imageDataValidation.Image;
+
+		if(imageDataValidation.Id == -1) 
+		{
+			//Insert new.
+			maxId = await HttpClient.GetFromJsonAsync<GetMaxId>(NavigationManager.BaseUri + "Max-id");
+
+			imageData.Id = maxId.MaxId + 1;
+
+			await HttpClient.PostAsJsonAsync<ImageData>(NavigationManager.BaseUri + "Image-new", imageData);
+
+			NavigationManager.NavigateTo(NavigationManager.BaseUri);
+
+			//bool isNotNullImage = false;
+
+			//if (imageData.Image != null)
+			//{
+			//	isNotNullImage = true;
+			//}
+
+			//imageErrorText = imageData.Id + "::ID??::" + imageData.Rating + "::Rating???" + isNotNullImage + "::isNotNullImage???::" + imageData.Description + "::DESC::"
+			//+ imageData.Title + "::TITLE????";
+		} 
+		else 
+		{
+			//Update.
+			imageData.Id = imageDataValidation.Id;
+
+			bool isNotNullImage = false;
+
+			if(imageData.Image != null) {
+				isNotNullImage = true;
+			}
+
+			//imageErrorText = imageData.Id + "::ID??::" + imageData.Rating + "::Rating???" + isNotNullImage + "::isNotNullImage???::" + imageData.Description + "::DESC::"
+			//+ imageData.Title + "::TITLE????";
+
+			await HttpClient.PutAsJsonAsync<ImageData>(NavigationManager.BaseUri + "Update-image", imageData);
+
+			NavigationManager.NavigateTo(NavigationManager.BaseUri);
+		}
+	}
+
+	private void ChangeRating(double star) {
+		imageDataValidation.Rating = star;
+
+		//imageErrorText = star + "";
+	}
+
+	private string GetId(int id)
+	{
+		return "e" + id;
+	}
+
+	private int ParseToInt(string s)
+	{
+		int parsed = 0;
+		bool isParsed = int.TryParse(s, out parsed);
+
+		if (isParsed)
+		{
+			return parsed;
+		}
+
+		return 0;
+	}
+
+	private async void LoadImageFile(InputFileChangeEventArgs e)
+	{
+		isImageLoading = true;
+		imageDataValidation.Rating = 0;
+
+		try
+		{
+			foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+			{
+				if (file.Size < maxFileSize)
+				{
+					//Full Size image.
+					MemoryStream ms = new MemoryStream();
+					await file.OpenReadStream(maxAllowedSize: 10000000).CopyToAsync(ms);
+					var buffer = ms.ToArray();
+
+					fullsizeImage = buffer;
+					imageFullSize = $"data:{"image/jpg"};base64,{Convert.ToBase64String(buffer)}";
+
+					imageDataValidation.Image = fullsizeImage;
+
+					//Thumbnail image.
+					byte[]? resized = resizeImage.Resize(buffer, 375, 375);
+
+					if (resized != null)
+					{
+						imageThumbnail = $"data:{"image/jpg"};base64,{Convert.ToBase64String(resized)}";
+					}
+
+					isImageLoading = false;
+					StateHasChanged();
+				}
+				else
+				{
+					imageErrorText = "Image file too large (exceeding 10 MB)";
+					isImageLoading = false;
+					break;
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			imageErrorText = "Problem with file..." + ex.Message;
+			isImageLoading = false;
+		}
+
+	}
+
+	private void ShowImageFullSize()
+	{
+		showImageFullSize = !showImageFullSize;
+
+		if (!string.IsNullOrEmpty(imageFullSize) && showImageFullSize)
+		{
+			cssStyleLargerImagePopUp = "visibility:visible";
+		}
+		else
+		{
+			cssStyleLargerImagePopUp = "visibility:hidden";
+		}
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (IdToModify > 0) {
+			imageDataValidation.Id = IdToModify;
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (IdToModify > 0)
+		{
+			newImageOrEditImage = "Edit Image";
+
+			imageData = await HttpClient.GetFromJsonAsync<ImageData>(NavigationManager.BaseUri + "Images" + IdToModify);
+
+			if(imageData != null) 
+			{
+				imageDataValidation.Title = imageData.Title;
+				imageDataValidation.Description = imageData.Description;
+				imageDataValidation.Rating = imageData.Rating;
+
+				if(imageData.Image != null)
+				{
+					imageDataValidation.Image = imageData.Image;
+
+					byte[]? resized = resizeImage.Resize(imageData.Image, 200, 200);
+
+					if (resized != null)
+					{
+						imageThumbnail = $"data:{"image/jpg"};base64,{Convert.ToBase64String(resized)}";
+					}
+
+					imageFullSize = $"data:{"image/jpg"};base64,{Convert.ToBase64String(imageData.Image)}";
+
+					StateHasChanged();
+				}
+			}
+		}
+	}
+
+}

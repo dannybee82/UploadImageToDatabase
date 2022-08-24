@@ -1,0 +1,288 @@
+﻿
+/*
+ * Form
+ *
+ */
+
+.UploadImagesForm {
+    width: 45%;
+}
+
+.inputText {
+    display: block;
+    margin-bottom: 15px
+}
+
+.uploadFile {
+    display: block;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.whiteSpaceUnderForm {
+    height:50px;
+}
+
+.imagePreview {
+    display: block;
+    min-width: 200px;
+    min-height: 200px;
+}
+
+.largerImagePopUp {
+    position: absolute;
+    max-width: 80%;
+    max-height: 80%;
+    background-color: lightgray;
+    top: 10%;
+    left: 10%;
+    display: flex;
+    flex-direction: column;
+    overflow:hidden;
+    z-index:25;
+}
+
+.imageContainer {
+    max-width: 80%;
+    max-height: 80%;
+    overflow: auto;
+    position: relative;
+    float: left;
+    clear: left;
+    margin-left: 25px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    display: block;
+}
+
+    .imageContainer img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+.imageCloseButton {
+    float: right;
+    position: relative;
+    display: block;
+    margin-right: 25px;
+    margin-top: 25px;
+    width: 5%;
+}
+
+.imageCloseButton div {
+    background-color:white;
+    margin-left:25px;
+    width:200px;
+    border-radius:10px;
+    text-align:center;
+    border:1px solid black;
+    cursor:pointer;
+}
+
+    .imageCloseButton div:hover {
+        border: 1px solid blue;
+        color:blue;
+    }
+
+    .imageCloseButton img {
+        float: left;
+        position: relative;
+        margin-left: 15px;
+        width: 16px;
+        height: 16px;
+        margin-top: 5px;
+    }
+
+    .submitButton {
+        display: block;
+        margin-top: 50px;
+    }
+
+/* 
+ * Images at index. Or: Image Gallery
+ *
+ */
+
+    .imageGalleryContainer {
+        min-width: 95%;
+        min-height: 95%;
+        overflow: auto;
+        background-color: ivory;
+        border: 2px dashed lightgrey;
+    }
+
+.imageGalleryItem {
+    min-width: 400px;
+    min-height: 400px;
+    position: relative;
+    float: left;
+    border: 1px solid lightgrey;
+    margin:5px;
+}
+
+    .imageGalleryItem img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+.imageGalleryNoPreview {
+    background-color: #000;
+    min-width: 375px;
+    min-height: 375px;
+    color: red;
+    font-size: 24px;
+    font-family: 'Lucida Sans', Verdana, 'Arial';
+    text-align: center;
+    line-height: 250px;
+    cursor:default;
+}
+
+
+.imageGalleryDescription {
+    background-color: ivory;
+    color: black;
+    font-size: 20px;
+    text-align: center;
+    opacity: 0.95;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    float: left;
+    min-width: 350px;
+    min-height: 350px;
+    padding-top: 75px;
+    padding-left:25px;
+    padding-right:25px;
+    padding-bottom:75px;
+    z-index: 10;
+    border-radius: 10px;
+}
+
+.imageGalleryMenu {
+    position:relative;
+    float:left;
+    width:100%;
+    height:50px;
+    bottom:0;
+    padding-top:10px;
+}
+
+.imageGalleryMenuItem {
+    position: relative;
+    float: left;
+    margin-left: 30px;
+    margin-right:30px;
+    width:34px;
+    height:34px;
+}
+
+    .imageGalleryMenuItem:hover {
+        border: 1px solid lightgrey;       
+    }
+
+.imageGalleryRating {
+    position: absolute;
+    float: right;
+    top: 10px;
+    right: 10px;
+    z-index: 25;
+    background-color: black;
+    border: 1px solid darkgrey;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+    .imageGalleryRating .ratingContainer {
+        min-height: auto;
+        max-width: auto;
+        position: relative;
+        float: right;
+        border:none;
+    }
+
+        .imageGalleryRating .ratingContainer .star {
+            cursor: default;
+            margin-top: 0px;
+            position: relative;
+            float: left;
+            z-index:5;
+        }
+
+
+    /*
+     * Dialog
+     *
+     */
+        .dialog-container {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            animation: dialog-container-entry 0.2s;
+        }
+
+@keyframes dialog-container-entry {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.dialog {
+    background-color: white;
+    box-shadow: 0 0 12px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    z-index: 2000;
+    align-self: center;
+    margin: auto;
+    width: 700px;
+    max-height: calc(100% - 3rem);
+    animation: dialog-entry 0.4s;
+    animation-timing-function: cubic-bezier(0.075, 0.820, 0.165, 1.000);
+}
+
+@keyframes dialog-entry {
+    0% {
+        transform: translateY(30px) scale(0.95);
+    }
+
+    100% {
+        transform: translateX(0px) scale(1.0);
+    }
+}
+
+.dialog-title {
+    background-color: #444;
+    color: #fff2cc;
+    padding: 1.3rem 0.5rem;
+}
+
+    .dialog-title h2 {
+        color: white;
+        font-size: 1.4rem;
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.3rem;
+    }
+
+.dialog-body {
+    flex-grow: 1;
+    padding: 0.5rem 3rem 1rem 0.5rem;
+}
+
+.dialog-buttons {
+    height: 4rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    background-color: #eee;
+    padding: 0 1rem;
+}

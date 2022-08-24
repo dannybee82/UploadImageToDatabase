@@ -1,0 +1,122 @@
+﻿@using BlazorFormDemo_002.ImageMethods
+
+<div class="imageGalleryItem">
+	@if (Image == null)
+	{
+		<div class="imageGalleryNoPreview">No Preview Available</div>
+	}
+	else
+	{
+		<div>
+			<img src="@ConvertByteArrayToString(Image, true)" title="@ImageTitle" alt="@ImageTitle" />
+		</div>
+	}
+
+	<div class="imageGalleryDescription" style="@cssShowDescription">@ImageDescription</div>
+
+	<div class="imageGalleryRating">
+		<StarsRating AllowChanges=false CurrentRatingInStars=@Rating MarginLeft=2 MarginRight=2 StarSize=15 UseFilledStars=true />
+	</div>
+
+	<div class="imageGalleryMenu">
+		<div class="imageGalleryMenuItem" @onclick="ShowDescription">
+			<img src="../images/description.png" alt="Show Description" title="Show Description" />
+		</div>
+		<div class="imageGalleryMenuItem" @onclick="ShowImageFullSize">
+			<img src="../images/view.png" alt="View Image" title="View Image" />
+		</div>
+		<div class="imageGalleryMenuItem" @onclick="(() => EditMethod.InvokeAsync(TargetId))">
+			<img src="../images/edit.png" alt="Edit Image" title="Edit Image" />
+		</div>
+		<div class="imageGalleryMenuItem" @onclick="(() => ShowDialog())">
+			<img src="../images/delete.png" alt="Delete Image" title="Delete Image" />
+		</div>
+	</div>
+</div>
+
+<Dialog Title="Delete Image?" Show=@showDialog TargetId=@TargetId OnConfirm="@(() => {HideDialog(); DeleteMethod.InvokeAsync(TargetId);})" OnCancel=@HideDialog>
+	<p>Do you want to delete this image?</p>
+</Dialog>
+
+<div class="largerImagePopUp" style="@cssStyleLargerImagePopUp">
+	<div class="imageCloseButton">
+		<div @onclick="ShowImageFullSize" @onclick:stopPropagation="true">
+			<img src="images/close.png" alt="Close" title="Close" />Close
+		</div>
+	</div>
+	<div class="imageContainer">
+		@if (Image != null) 
+		{
+			<img src="@ConvertByteArrayToString(Image, false)" id="largerImageAtPopup" alt="Full Size Image" />
+		}
+		else 
+		{
+			<p>Full Size Image not Avaialable ...</p>
+		}
+	</div>	
+</div>
+
+@code {
+	[Parameter]
+	public byte[] Image { get; set; }
+
+	[Parameter]
+	public string ImageTitle { get; set; }
+
+	[Parameter]
+	public string ImageDescription { get; set; }
+
+	[Parameter]
+	public int TargetId { get; set; }
+
+	[Parameter]
+	public double Rating { get; set; }
+
+	[Parameter]
+	public EventCallback<int> EditMethod { get; set; }
+
+	[Parameter]
+	public EventCallback<int> DeleteMethod { get; set; }
+
+
+	private string cssShowDescription = "visibility:hidden";
+	private bool showDescription = false;
+
+	private bool showDialog = false;
+
+	private bool showImageFullSize = false;
+	private string cssStyleLargerImagePopUp = "visibility:hidden";
+
+	private void ShowDescription()
+	{
+		showDescription = !showDescription;
+		cssShowDescription = (showDescription) ? "visibility:visible" : "visibility:hidden";
+	}
+
+	private void ShowDialog()
+	{
+		showDialog = true;
+	}
+
+	private void HideDialog()
+	{
+		showDialog = false;
+	}
+
+	private void ShowImageFullSize() {
+		showImageFullSize = !showImageFullSize;
+		cssStyleLargerImagePopUp = (showImageFullSize) ? "visibility:visible" : "visibility:hidden";
+	}
+
+	private string ConvertByteArrayToString(byte[] arr, bool isResize)
+	{		
+		if (isResize)
+		{
+			ResizeImage resizeImage = new();
+			arr = resizeImage.Resize(arr, 375, 375);
+		}
+
+		return $"data:{"image/jpg"};base64,{Convert.ToBase64String(arr)}";
+	}
+
+}

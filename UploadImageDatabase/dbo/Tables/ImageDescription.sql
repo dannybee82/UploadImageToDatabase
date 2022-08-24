@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[ImageDescription]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[Title] NVARCHAR(80) NOT NULL,
+	[Description] NVARCHAR(255) NOT NULL,
+	[Rating] DECIMAL(4,2) NOT NULL DEFAULT 0
+)
